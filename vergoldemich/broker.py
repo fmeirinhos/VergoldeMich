@@ -15,7 +15,7 @@ class Broker(object):
         agents (dict) The crypto currency agents
     """
 
-    def __init__(self, freq=1):
+    def __init__(self):
         self.agents = {}
 
         self.logger = logbook.Logger(self.__class__.__name__)

@@ -45,15 +45,27 @@ class Plotter(object):
         Args:
                 *args (str) the functions to plot
         """
+        self.plots = [*args]
+        self.subplot = str(len(self.plots)) + '1'  # vertical plot
 
-        self.subplot = str(len(args)) + '1'  # vertical plot
-        # self.subplot_kwargs = {'sharex'=plt.subplot(self.subplot)}
+        self.subplot_kwargs = {'sharex': plt.subplot(int(self.subplot + '1'))}
 
-        for i, p in enumerate(args):
-            ax = plt.subplot(int(self.subplot + str(i + 1)))
-            getattr(self, p)(ax)
+        for plot in self.plots:
+            ax = self._get_axis(plot)
+            getattr(self, plot)(ax)
 
         plt.show()
+
+    def _get_axis(self, plot):
+        """
+        Fetches the axis of the plot ``plot``
+
+        Arguments:
+            plot (str)
+        """
+        loc = int(self.subplot + str(self.plots.index(plot) + 1))
+
+        return plt.subplot(loc, **self.subplot_kwargs)
 
     def asset_trades(self, ax):
         """

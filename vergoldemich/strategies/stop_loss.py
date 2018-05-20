@@ -18,9 +18,8 @@ class StopLoss(Strategy):
     """
 
     params = dict(
-        target_profit=0.07,
-        stop_loss=0.05,
-        sell=0.10,
+        target_profit=0.09,
+        stop_loss=0.3,
         trail=False
     )
 
@@ -38,8 +37,8 @@ class StopLoss(Strategy):
         self._check()
 
     def _check(self):
-        if self.p.sell <= 0:
-            self.logger.error("Invalid sell percentage")
+        if self.p.target_profit <= 0:
+            self.logger.error("Invalid target_profit percentage")
             raise RuntimeError
 
     def signal(self, market, context, data):
@@ -52,7 +51,7 @@ class StopLoss(Strategy):
         if pos.amount > 0:
 
             if price <= pos.cost_basis * (1 - self.p.stop_loss):
-                arg = 'StopLoss at {}'.format(self.p.sell)
+                arg = 'StopLoss at {}'.format(self.p.target_profit)
                 return SIGNAL_SHORT, arg
 
             elif price >= pos.cost_basis * (1 + self.p.target_profit):
@@ -60,3 +59,5 @@ class StopLoss(Strategy):
                 return SIGNAL_SHORT, arg
 
         return SIGNAL_NONE, ''
+
+    # def plot(self, )

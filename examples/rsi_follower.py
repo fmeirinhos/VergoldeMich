@@ -7,7 +7,7 @@ from catalyst.utils.run_algo import run_algorithm
 from vergoldemich import (
     Broker,
     Agent,
-    RSI_Bol_Fawner,
+    RSI_BB_Fawner,
     Plotter
 )
 
@@ -16,13 +16,13 @@ import time
 import pandas as pd
 
 # Initialize broker
-broker = Broker(freq=1)
+broker = Broker()
 
 
 def initialize(context):
     context.start_time = time.time()
 
-    # Spice it up
+    broker.add_agent(Agent('eos_usd', RSI_BB_Fawner()))
 
     # Add commission and slippage
     context.set_commission(maker=0.001, taker=0.002)

@@ -2,13 +2,12 @@ from .signal import *
 from .strategy import *
 
 import logbook
-
-# from pandas_talib import RSI, SMA, STDDEV, SETTINGS
-from talib import RSI, SMA, STDDEV
 import talib
+import numpy as np
+import time
 
 
-class RSI_Bol_Fawner(Strategy):
+class RSI_BB_Fawner(Strategy):
     """
     Basic strategy solely based on following RSI.
 
@@ -20,10 +19,11 @@ class RSI_Bol_Fawner(Strategy):
     """
 
     params = dict(
-        RSIlength=14,
-        RSIoversold=35,
+        RSIlength=16,
+        RSIoversold=30,
         RSIoverbought=70,
         RSICandle='5T',
+
         BBlength=20,
         BBsa=2
     )
@@ -39,15 +39,12 @@ class RSI_Bol_Fawner(Strategy):
             BBlength (int) BB SMA period Length
             BBsa (int) BB standard deviation
         """
-        super(RSI_Bol_Fawner, self).__init__()
+        super(RSI_BB_Fawner, self).__init__()
 
         self.logger = logbook.Logger(self.__class__.__name__)
 
         self.p.update(**kwargs)
         self._check()
-
-        # Change internal settings of pandas_talib
-        # SETTINGS.join = False
 
     def _check(self):
         """
@@ -66,7 +63,7 @@ class RSI_Bol_Fawner(Strategy):
             prices = data.history(
                 market,
                 fields='price',
-                bar_count=50,
+                bar_count=200,
                 frequency=self.p.RSICandle
             )
 
@@ -76,19 +73,27 @@ class RSI_Bol_Fawner(Strategy):
 
         rsi = talib.RSI(prices.values, timeperiod=self.p.RSIlength)
 
-        pos_amount = context.portfolio.positions[market].amount
+        bb_upper, middleband, bb_lower = talib.BBANDS(
+            prices.values, timeperiod=self.p.BBlength, nbdevup=self.p.BBsa, nbdevdn=self.p.BBsa, matype=0)
+
+        price = data.current(market, 'price')
 
         # Record everything useful to analyze later
         record(
             rsi=rsi[-1],
+            bb_upper=bb_upper[-1],
+            bb_lower=bb_lower[-1]
         )
 
-        if rsi[-1] <= self.p.RSIoversold and pos_amount == 0:
-            arg = 'RSI at {}'.format(rsi[-1])
+        pos_amount = context.portfolio.positions[market].amount
+        price = data.current(market, 'close')
+
+        if pos_amount == 0 and rsi[-1] <= self.p.RSIoversold and price <= bb_lower[-1]:
+            arg = 'RSI at {:.3f}'.format(rsi[-1])
             return SIGNAL_LONG, arg
 
-        elif rsi[-1] >= self.p.RSIoverbought and pos_amount > 0:
-            arg = 'RSI at {}'.format(rsi[-1])
+        elif pos_amount > 0 and rsi[-1] >= self.p.RSIoverbought and price >= bb_upper[-1]:
+            arg = 'RSI at {:.3f}'.format(rsi[-1])
             return SIGNAL_SHORT, arg
 
         return SIGNAL_NONE, ''
