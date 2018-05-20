@@ -23,16 +23,10 @@ def initialize(context):
     context.start_time = time.time()
 
     # Spice it up
-    broker.add_agent(Agent('eth_usd', RSI_Bol_Fawner()))
 
     # Add commission and slippage
     context.set_commission(maker=0.001, taker=0.002)
     context.set_slippage(spread=0.001)
-
-
-def handle_data(context, data):
-    # Broker is the one who makes business
-    broker.handle_data(context, data)
 
 
 def analyze(context, perf):
@@ -53,10 +47,10 @@ if __name__ == '__main__':
         capital_base=100,
         data_frequency='minute',
         initialize=initialize,
-        handle_data=handle_data,
+        handle_data=broker.handle_data,
         analyze=analyze,
         exchange_name='bitfinex',
         base_currency='usd',
-        start=pd.to_datetime('2018-05-09', utc=True),
-        end=pd.to_datetime('2018-05-10', utc=True),
+        start=pd.to_datetime('2018-05-10', utc=True),
+        end=pd.to_datetime('2018-05-19', utc=True),
     )

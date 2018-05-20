@@ -3,6 +3,7 @@ from datetime import timedelta
 
 from catalyst.api import (
     schedule_function,
+    record
 )
 
 
@@ -12,18 +13,14 @@ class Broker(object):
 
     Attributes
         agents (dict) The crypto currency agents
-        freq (int): The minutes between making decisions
     """
 
     def __init__(self, freq=1):
         self.agents = {}
 
-        self.freq = freq
-
         self.logger = logbook.Logger(self.__class__.__name__)
         self.logger.info("Broker initialized")
         self.logger.info("\n\n++++ Get rich or die tryin ++++\n")
-        self.logger.info("Trading every {} minute(s)".format(self.freq))
 
     def add_agent(self, agent):
         """
@@ -33,8 +30,7 @@ class Broker(object):
             agent (Agent) The crypto currency agent
         """
         self.agents[agent.market] = agent
-        self.logger.info(
-            "Added {} as trading market".format(agent.market.symbol))
+        self.logger.info(str(agent) + ' added')
 
     def initialize(self, context):
         """
@@ -56,12 +52,16 @@ class Broker(object):
         Arguments:
             context (dict) Used for maintaining state during your backtest or live trading session
         """
+
         # self.logger.info("Trading at {}".format(data.current_dt))
+
         # try:
         self._handle_data(context, data)
+
         # except Exception as e:
         #     self.logger.warn('ABORTING the frame on error {}'.format(e))
         #     context.errors.append(e)
+
         # if len(context.errors) > 0:
         #     self.logger.info('The errors:\n{}'.format(context.errors))
 
@@ -74,3 +74,7 @@ class Broker(object):
         """
         for market, agent in self.agents.items():
             agent.trade(context, data)
+
+        record(
+            cash=context.portfolio.cash
+        )

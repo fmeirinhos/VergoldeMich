@@ -11,7 +11,7 @@ class Plotter(object):
     Main crypto plotter
     """
 
-    def __init__(self, context, perf, **kwargs):
+    def __init__(self, context, performance, **kwargs):
         """
         Sets the seaborn options
 
@@ -19,10 +19,10 @@ class Plotter(object):
             perf (Pandas.DataFrame): The algo performance DataFrame.
             **kwargs: See seaborn options
         """
-        self.perf = perf
+        self.perf = performance
         self.context = context
 
-        self._logger = logbook.Logger(__name__)
+        self._logger = logbook.Logger(self.__class__.__name__)
 
         try:
             import seaborn as sns
@@ -35,7 +35,7 @@ class Plotter(object):
             sns.set_color_codes()
 
         except ImportError:
-            self._logger.info(
+            self._logger.warn(
                 'Seaborn not installed. Skipping seaborn options')
 
     def plot(self, *args):
@@ -85,9 +85,9 @@ class Plotter(object):
             buy_df = transaction_df[transaction_df['amount'] > 0]
             sell_df = transaction_df[transaction_df['amount'] < 0]
             ax.scatter(buy_df.index.to_pydatetime(), self.perf.loc[
-                       buy_df.index, 'price'], marker='^', s=100, c='green', label='')
+                       buy_df.index, 'price'], marker='^', s=20, c='green', label='')
             ax.scatter(sell_df.index.to_pydatetime(), self.perf.loc[
-                       sell_df.index, 'price'], marker='v', s=100, c='red', label='')
+                       sell_df.index, 'price'], marker='v', s=20, c='red', label='')
 
     def portfolio_value(self, ax):
         """

@@ -41,14 +41,13 @@ class RSI_Bol_Fawner(Strategy):
         """
         super(RSI_Bol_Fawner, self).__init__()
 
-        self.logger = logbook.Logger(__name__)
+        self.logger = logbook.Logger(self.__class__.__name__)
 
-        self.p.__dict__.update(**kwargs)
+        self.p.update(**kwargs)
+        self._check()
 
         # Change internal settings of pandas_talib
         # SETTINGS.join = False
-
-        self._check()
 
     def _check(self):
         """
@@ -85,11 +84,14 @@ class RSI_Bol_Fawner(Strategy):
         )
 
         if rsi[-1] <= self.p.RSIoversold and pos_amount == 0:
-            return SIGNAL_LONG
-        elif rsi[-1] >= self.p.RSIoverbought and pos_amount > 0:
-            return SIGNAL_SHORT
+            arg = 'RSI at {}'.format(rsi[-1])
+            return SIGNAL_LONG, arg
 
-        return SIGNAL_NONE
+        elif rsi[-1] >= self.p.RSIoverbought and pos_amount > 0:
+            arg = 'RSI at {}'.format(rsi[-1])
+            return SIGNAL_SHORT, arg
+
+        return SIGNAL_NONE, ''
 
     def plot(self, ax, chart):
         """
