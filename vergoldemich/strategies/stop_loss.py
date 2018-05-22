@@ -18,7 +18,7 @@ class StopLoss(Strategy):
     """
 
     params = dict(
-        target_profit=0.09,
+        target_profit=0.1,
         stop_loss=0.3,
         trail=False
     )
@@ -51,7 +51,7 @@ class StopLoss(Strategy):
         if pos.amount > 0:
 
             if price <= pos.cost_basis * (1 - self.p.stop_loss):
-                arg = 'StopLoss at {}'.format(self.p.target_profit)
+                arg = 'StopLoss at {}'.format(self.p.stop_loss)
                 return SIGNAL_SHORT, arg
 
             elif price >= pos.cost_basis * (1 + self.p.target_profit):

@@ -1,7 +1,6 @@
 from .signal import *
 from .strategy import *
 
-import logbook
 import talib
 import numpy as np
 import time
@@ -40,8 +39,6 @@ class RSI_BB_Fawner(Strategy):
             BBsa (int) BB standard deviation
         """
         super(RSI_BB_Fawner, self).__init__()
-
-        self.logger = logbook.Logger(self.__class__.__name__)
 
         self.p.update(**kwargs)
         self._check()
@@ -85,14 +82,13 @@ class RSI_BB_Fawner(Strategy):
             bb_lower=bb_lower[-1]
         )
 
-        pos_amount = context.portfolio.positions[market].amount
         price = data.current(market, 'close')
 
-        if pos_amount == 0 and rsi[-1] <= self.p.RSIoversold and price <= bb_lower[-1]:
+        if rsi[-1] <= self.p.RSIoversold and price <= bb_lower[-1]:
             arg = 'RSI at {:.3f}'.format(rsi[-1])
             return SIGNAL_LONG, arg
 
-        elif pos_amount > 0 and rsi[-1] >= self.p.RSIoverbought and price >= bb_upper[-1]:
+        elif rsi[-1] >= self.p.RSIoverbought and price >= bb_upper[-1]:
             arg = 'RSI at {:.3f}'.format(rsi[-1])
             return SIGNAL_SHORT, arg
 

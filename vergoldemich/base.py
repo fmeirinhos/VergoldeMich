@@ -1,3 +1,6 @@
+import logbook
+
+
 class Parameters(object):
 
     def __init__(self, **kwargs):
@@ -11,3 +14,4 @@ class MetaBase(object):
 
     def __init__(self):
         self.p = Parameters(**self.params)
+        self.logger = logbook.Logger(self.__class__.__name__)

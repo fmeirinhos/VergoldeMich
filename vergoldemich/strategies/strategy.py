@@ -11,12 +11,12 @@ class Strategy(MetaBase):
     """Docstring for Strategy. """
 
     def __str__(self):
-        return "{}".format(self.__class__)
+        return "{}".format(self.__class__.__name__)
 
     def __init__(self):
         super(Strategy, self).__init__()
 
-    def signal(self, data):
+    def signal(self, market, context, data):
         """
         Will return either a BUY, SELL or WAIT signal for the given market
         """
