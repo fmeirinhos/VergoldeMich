@@ -73,8 +73,6 @@ class RSI_BB_Fawner(Strategy):
         bb_upper, middleband, bb_lower = talib.BBANDS(
             prices.values, timeperiod=self.p.BBlength, nbdevup=self.p.BBsa, nbdevdn=self.p.BBsa, matype=0)
 
-        price = data.current(market, 'price')
-
         # Record everything useful to analyze later
         record(
             rsi=rsi[-1],
@@ -82,13 +80,17 @@ class RSI_BB_Fawner(Strategy):
             bb_lower=bb_lower[-1]
         )
 
-        price = data.current(market, 'close')
+        close = data.current(market, 'close')
 
-        if rsi[-1] <= self.p.RSIoversold and price <= bb_lower[-1]:
+        date = context.blotter.current_dt
+
+        context.csvwriter.writerow([date, close])
+
+        if rsi[-1] <= self.p.RSIoversold and close <= bb_lower[-1]:
             arg = 'RSI at {:.3f}'.format(rsi[-1])
             return SIGNAL_LONG, arg
 
-        elif rsi[-1] >= self.p.RSIoverbought and price >= bb_upper[-1]:
+        elif rsi[-1] >= self.p.RSIoverbought and close >= bb_upper[-1]:
             arg = 'RSI at {:.3f}'.format(rsi[-1])
             return SIGNAL_SHORT, arg
 

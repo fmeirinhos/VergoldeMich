@@ -24,10 +24,14 @@ class ADX_RSI(Strategy):
 
         candlesize='5T',
         trading_window=7,
+        long_trigger=3,
+        short_trigger=2,
     )
 
     def __init__(self, **kwargs):
         super(ADX_RSI, self).__init__()
+
+        self.p.update(**kwargs)
 
     def signal(self, market, context, data):
 
@@ -68,11 +72,12 @@ class ADX_RSI(Strategy):
         #     if np.any(rsi[-self.p.trading_window::] >= self.p.RSI_overbought):
         #         return SIGNAL_SHORT, 'Crossput and RSI'.format(rsi[-1])
 
-        if np.any(crosscall):
+        if np.sum(crosscall) >= self.p.long_trigger:
             if np.any(rsi[-self.p.trading_window::] <= self.p.RSI_oversold):
                 return SIGNAL_LONG, 'Crosscall and RSI {}'.format(rsi[-1])
 
         # elif not crosscall[-1]:
-        if np.any(rsi[-self.p.trading_window::] >= self.p.RSI_overbought):
-            return SIGNAL_SHORT, 'Crossput and RSI {}'.format(rsi[-1])
+        if self.p.trading_window - np.sum(crosscall) >= self.p.short_trigger:
+            if np.any(rsi[-self.p.trading_window::] >= self.p.RSI_overbought):
+                return SIGNAL_SHORT, 'Crossput and RSI {}'.format(rsi[-1])
         return SIGNAL_NONE, ''
