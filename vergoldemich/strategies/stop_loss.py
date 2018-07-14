@@ -17,28 +17,46 @@ class StopLoss(Strategy):
     https://www.investopedia.com/terms/s/stop-lossorder.asp
     """
 
+    """
+    Explanation:
+        A trailing stop is a stop order that can be set at a defined percentage
+        away from a security's current market price
+        https://www.investopedia.com/terms/t/trailingstop.asp
+    """
     params = dict(
-        target_profit=0.1,
-        stop_loss=0.3,
-        trail=False
+        shrt_target_profit=0.11,
+        shrt_stop_loss=0.04,
+
+        long_target_profit=0.1,
+        long_stop_loss=0.05,
+
+        trail=False,
     )
 
     def __init__(self, **kwargs):
         """
         Keyword Args:
-            sell (float) Price is x% less than the entry point
-            trail (Bool) trailing stop is a stop order that can be set at a defined percentage away from a security's current market price
+            shrt_target_profit (float)
+            shrt_stop_loss (float)
+
+            long_target_profit (float)
+            long_stop_loss (float)
         """
         super(StopLoss, self).__init__()
-
-        self.logger = logbook.Logger(self.__class__.__name__)
 
         self.p.update(**kwargs)
         self._check()
 
     def _check(self):
-        if self.p.target_profit <= 0:
+        """
+        Sanity checks for the strategy
+        """
+        if self.p.long_target_profit <= 0 or self.p.shrt_target_profit <= 0:
             self.logger.error("Invalid target_profit percentage")
+            raise RuntimeError
+
+        if self.p.long_stop_loss <= 0 or self.p.shrt_stop_loss <= 0:
+            self.logger.error("Invalid stop_loss percentage")
             raise RuntimeError
 
     def signal(self, market, context, data):
@@ -46,17 +64,28 @@ class StopLoss(Strategy):
 
         # Get position
         pos = context.portfolio.positions[market]
+        # print(pos)
 
-        # Simple stop loss
         if pos.amount > 0:
-
-            if price <= pos.cost_basis * (1 - self.p.stop_loss):
-                arg = 'StopLoss at {}'.format(self.p.stop_loss)
+            if price <= pos.cost_basis * (1 - self.p.long_stop_loss):
+                arg = 'StopLoss at {}'.format(self.p.long_stop_loss)
                 return SIGNAL_SHORT, arg
 
-            elif price >= pos.cost_basis * (1 + self.p.target_profit):
-                arg = 'Target profit at {}'.format(self.p.target_profit)
+            elif price >= pos.cost_basis * (1 + self.p.long_target_profit):
+                arg = 'Target profit at {}'.format(self.p.long_target_profit)
                 return SIGNAL_SHORT, arg
+
+        elif pos.amount == 0:
+            last_sale_price = context.short_positions.get(
+                market.symbol, float('nan'))
+
+            if price <= last_sale_price * (1 - self.p.shrt_target_profit):
+                arg = 'Target profit at {}'.format(self.p.shrt_target_profit)
+                return SIGNAL_LONG, arg
+
+            elif price >= last_sale_price * (1 + self.p.shrt_stop_loss):
+                arg = 'StopLoss at {}'.format(self.p.shrt_stop_loss)
+                return SIGNAL_LONG, arg
 
         return SIGNAL_NONE, ''
 

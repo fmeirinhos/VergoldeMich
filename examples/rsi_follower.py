@@ -22,19 +22,22 @@ broker = Broker()
 def initialize(context):
     context.start_time = time.time()
 
-    broker.add_agent(Agent('eos_usd', RSI_BB_Fawner()))
+    broker.add_agent(Agent('eth_btc', RSI_BB_Fawner()))
+
+    # Find alternative!
+    context.short_positions = {}
 
     # Add commission and slippage
-    context.set_commission(maker=0.001, taker=0.002)
-    context.set_slippage(spread=0.001)
+    context.set_commission(maker=0.000, taker=0.001)
+    context.set_slippage(spread=0.000)
 
 
 def analyze(context, perf):
     Logger(__name__).info('elapsed time: {}'.format(
         time.time() - context.start_time))
 
-    context.base_currency = list(context.exchanges.values())[
-        0].base_currency.upper()
+    context.quote_currency = list(context.exchanges.values())[
+        0].quote_currency.upper()
 
     context.asset = list(broker.agents.keys())[0]
 
@@ -44,13 +47,13 @@ def analyze(context, perf):
 
 if __name__ == '__main__':
     run_algorithm(
-        capital_base=100,
+        capital_base=1,
         data_frequency='minute',
         initialize=initialize,
         handle_data=broker.handle_data,
         analyze=analyze,
-        exchange_name='bitfinex',
-        base_currency='usd',
+        exchange_name='binance',
+        quote_currency='eth',
         start=pd.to_datetime('2018-05-10', utc=True),
-        end=pd.to_datetime('2018-05-19', utc=True),
+        end=pd.to_datetime('2018-05-25', utc=True),
     )

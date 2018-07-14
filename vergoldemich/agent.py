@@ -31,12 +31,6 @@ class Agent(MetaBase):
 
     params = dict(
     )
-    """
-    Explanation:
-        A trailing stop is a stop order that can be set at a defined percentage
-        away from a security's current market price
-        https://www.investopedia.com/terms/t/trailingstop.asp
-    """
 
     def __init__(self, market, strategy):
         super(Agent, self).__init__()
@@ -94,20 +88,22 @@ class Agent(MetaBase):
         if signal == SIGNAL_NONE:
             return False
 
-        pos_amount = context.portfolio.positions[self.market].amount
+        pos = context.portfolio.positions[self.market]
         price = data.current(self.market, 'price')
 
         if signal == SIGNAL_LONG:
-            if pos_amount == 0:
+            if pos.amount == 0:
                 self.logger.info(
-                    '{0}: LONGING - price: {1:.3f}\t {2}'.format(data.current_dt, price, arg))
+                    '{0}: LONGING - price: {1:.4f}\t {2}'.format(data.current_dt, price, arg))
                 order_target_percent(self.market, target=1)
 
         elif signal == SIGNAL_SHORT:
-            if pos_amount > 0:
+            if pos.amount > 0:
                 self.logger.info(
-                    '{0}: SHRTING - price: {1:.3f}\t {2}'.format(data.current_dt, price, arg))
+                    '{0}: SHRTING - price: {1:.4f}\t {2}'.format(data.current_dt, price, arg))
                 order_target_percent(self.market, target=0)
+
+                context.short_positions[self.market.symbol] = price
 
         else:
             raise NotImplementedError

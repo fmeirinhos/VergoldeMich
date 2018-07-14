@@ -82,10 +82,6 @@ class RSI_BB_Fawner(Strategy):
 
         close = data.current(market, 'close')
 
-        date = context.blotter.current_dt
-
-        context.csvwriter.writerow([date, close])
-
         if rsi[-1] <= self.p.RSIoversold and close <= bb_lower[-1]:
             arg = 'RSI at {:.3f}'.format(rsi[-1])
             return SIGNAL_LONG, arg

@@ -78,7 +78,7 @@ class Plotter(object):
             ax=ax, label='Price')
         ax.legend_.remove()
         ax.set_ylabel('{asset}\n({base})'.format(
-            asset=self.context.asset.symbol, base=self.context.base_currency))
+            asset=self.context.asset.symbol, base=self.context.quote_currency))
 
         start, end = ax.get_ylim()
         ax.yaxis.set_ticks(np.arange(start, end, (end - start) / 5))
@@ -112,7 +112,7 @@ class Plotter(object):
         self.perf.loc[:, ['portfolio_value']].plot(ax=ax)
         ax.legend_.remove()
         ax.set_ylabel('Portfolio Value\n({})'.format(
-            self.context.base_currency))
+            self.context.quote_currency))
         start, end = ax.get_ylim()
         ax.yaxis.set_ticks(np.arange(start, end, (end - start) / 5))
 
@@ -143,6 +143,6 @@ class Plotter(object):
                 ax (matplotlib.pyplot.subplot) Subplot
         """
         self.perf.cash.plot(ax=ax)
-        ax.set_ylabel('Cash\n({})'.format(self.context.base_currency))
+        ax.set_ylabel('Cash\n({})'.format(self.context.quote_currency))
         start, end = ax.get_ylim()
         ax.yaxis.set_ticks(np.arange(0, end, end / 5))
