@@ -19,8 +19,7 @@ class Broker(object):
         self.agents = {}
 
         self.logger = logbook.Logger(self.__class__.__name__)
-        self.logger.info("Broker initialized")
-        self.logger.info("\n\n++++ Get rich or die tryin ++++\n")
+        self.logger.info("initialized. \n\n++++ Get rich or die tryin ++++\n")
 
     def add_agent(self, agent):
         """

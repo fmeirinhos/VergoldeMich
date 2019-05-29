@@ -14,3 +14,9 @@
     SIGNAL_SHORTEXIT_INV,
     SIGNAL_SHORTEXIT_ANY,
 ) = range(14)
+
+(
+    POSITION_NONE,
+    POSITION_SHORT,
+    POSITION_LONG,
+) = range(3)

@@ -13,8 +13,16 @@ class Strategy(MetaBase):
     def __str__(self):
         return "{}".format(self.__class__.__name__)
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         super(Strategy, self).__init__()
+        self.p.update(**kwargs)
+        self.check()
+
+    def check(self):
+        """
+        Sanity checks for the strategy
+        """
+        raise NotImplementedError
 
     def signal(self, market, context, data):
         """

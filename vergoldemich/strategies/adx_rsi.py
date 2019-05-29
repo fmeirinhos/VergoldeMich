@@ -19,7 +19,6 @@ class ADX_RSI(Strategy):
         RSI_overbought=70,
 
         ADX_timeperiod=3,
-        ADX_cross_timeperiod=1,
         threshold=60,
 
         candlesize='5T',
@@ -29,12 +28,12 @@ class ADX_RSI(Strategy):
     )
 
     def __init__(self, **kwargs):
-        super(ADX_RSI, self).__init__()
+        super(ADX_RSI, self).__init__(**kwargs)
 
-        self.p.update(**kwargs)
+    def check(self):
+        pass
 
-    def signal(self, market, context, data):
-
+    def eval(self, market, context, data):
         try:
             prices = data.history(
                 market,
@@ -47,6 +46,10 @@ class ADX_RSI(Strategy):
             self.logger.warn("Historical data not available {}".format(e))
             return
 
+        return self.signal(prices)
+
+    def signal(self, prices):
+
         rsi = talib.RSI(prices['price'].values,
                         timeperiod=self.p.RSI_timeperiod)
 
@@ -55,7 +58,7 @@ class ADX_RSI(Strategy):
         d_m = talib.MINUS_DI(prices['high'].values, prices['low'].values, prices[
             'close'].values, timeperiod=self.p.ADX_timeperiod)
 
-        crosscall = d_p[-self.p.ADX_timeperiod::] > d_m[-self.p.ADX_timeperiod::]
+        crosscall = d_p[-self.p.ADX_timeperiod:] > d_m[-self.p.ADX_timeperiod:]
 
         # if rsi[-1] <= self.p.RSI_oversold:
         #     if crosscall[-1]:
@@ -73,11 +76,11 @@ class ADX_RSI(Strategy):
         #         return SIGNAL_SHORT, 'Crossput and RSI'.format(rsi[-1])
 
         if np.sum(crosscall) >= self.p.long_trigger:
-            if np.any(rsi[-self.p.trading_window::] <= self.p.RSI_oversold):
+            if np.any(rsi[-self.p.trading_window:] <= self.p.RSI_oversold):
                 return SIGNAL_LONG, 'Crosscall and RSI {}'.format(rsi[-1])
 
         # elif not crosscall[-1]:
         if self.p.trading_window - np.sum(crosscall) >= self.p.short_trigger:
-            if np.any(rsi[-self.p.trading_window::] >= self.p.RSI_overbought):
+            if np.any(rsi[-self.p.trading_window:] >= self.p.RSI_overbought):
                 return SIGNAL_SHORT, 'Crossput and RSI {}'.format(rsi[-1])
         return SIGNAL_NONE, ''

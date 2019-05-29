@@ -15,13 +15,7 @@ class StopLoss(Strategy):
 
     Source:
     https://www.investopedia.com/terms/s/stop-lossorder.asp
-    """
-
-    """
-    Explanation:
-        A trailing stop is a stop order that can be set at a defined percentage
-        away from a security's current market price
-        https://www.investopedia.com/terms/t/trailingstop.asp
+    https://www.investopedia.com/terms/t/trailingstop.asp
     """
     params = dict(
         shrt_target_profit=0.11,
@@ -42,12 +36,9 @@ class StopLoss(Strategy):
             long_target_profit (float)
             long_stop_loss (float)
         """
-        super(StopLoss, self).__init__()
+        super(StopLoss, self).__init__(**kwargs)
 
-        self.p.update(**kwargs)
-        self._check()
-
-    def _check(self):
+    def check(self):
         """
         Sanity checks for the strategy
         """
